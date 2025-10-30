@@ -109,7 +109,7 @@ const getInventoryController = async (req, res) => {
   try {
     console.log("User ID from token:", req.user.userId);
     const inventory = await inventoryModel
-      .find({}).limit(5)
+      .find({}).limit(7)
       .populate("donor hospital")
       .sort({ createdAt: -1 });
     console.log("Inventory found:", inventory.length);
@@ -236,8 +236,10 @@ const getHospitalController = async (req, res) => {
 };
 const getOrganisationController=async(req,res)=>{
   try {
-    const donor=req.user.userId
-    const orgId=await inventoryModel.distinct('organisation',{donor})
+    const userId = req.user.userId;
+    const orgId = await inventoryModel.distinct('organisation', {
+      $or: [{ donor: userId }, { hospital: userId }],
+    });
     const organisations=await userModel.find({
       _id:{$in:orgId}
     })
